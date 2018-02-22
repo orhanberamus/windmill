@@ -1,0 +1,216 @@
+<!DOCTYPE html> 
+ 
+    
+   <html>
+    <head>
+           <title>Windmill</title> 
+        <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"> 
+    
+         
+          <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1"> 
+          <style type="text/css"> 
+              body { 
+                  /* Set the background color of the HTML page to black */ 
+                  background-color: #000000; 
+   
+                  /* Hide oversized content. This prevents the scroll bars. */ 
+                  overflow: hidden; 
+              } 
+          </style> 
+          
+          <script src="three.js"></script> 
+          <script src="Detector.js"></script> 
+          <script src="CanvasRenderer.js"></script> 
+          <script src="Projector.js"></script> 
+      </head> 
+      <body>
+          
+          <div id="WebGLCanvas"> </div>
+   
+          
+          <script> 
+              
+              var scene; 
+              //klavyeden girdi alındıgında ne kadar rotate etcegimizi belirleyen degerin ilklenmesi
+              var rotatevalue= 0.0; 
+              
+              // Global camera object 
+              var camera; 
+   
+              //üçgen objeleri
+              var triangleMesh1; 
+              var triangleMesh2; 
+              var triangleMesh3; 
+              var triangleMesh4; 
+              var triangleMesh5; 
+              
+             var color = new THREE.Color( 0x37DFFF );
+              //kare objesi
+              var squareMesh; 
+              
+              // Initialize the scene 
+              initializeScene(); 
+             
+          
+              animateScene(); 
+   
+           
+              function initializeScene(){ 
+                
+                  if(Detector.webgl){ 
+                      renderer = new THREE.WebGLRenderer({antialias:true}); 
+   
+               
+                  } else { 
+                      renderer = new THREE.CanvasRenderer(); 
+                  } 
+   
+                  renderer.setClearColor(0x000000, 1); 
+   
+                  canvasWidth = window.innerWidth; 
+                  canvasHeight = window.innerHeight; 
+   
+                  renderer.setSize(canvasWidth, canvasHeight); 
+   
+                  document.getElementById("WebGLCanvas").appendChild(renderer.domElement); 
+   
+                
+                  scene = new THREE.Scene(); 
+   
+        
+                camera = new THREE.PerspectiveCamera(45, canvasWidth / canvasHeight, 1, 100); 
+                 camera.position.set(0, 0, 10); 
+                 camera.lookAt(scene.position); 
+                 scene.add(camera);   
+                 
+                 
+            
+                 var squareGeometry = new THREE.Geometry(); 
+                 squareGeometry.vertices.push(new THREE.Vector3(-1.0,  1.0, 0.0)); 
+                 squareGeometry.vertices.push(new THREE.Vector3( 1.0,  1.0, 0.0)); 
+                 squareGeometry.vertices.push(new THREE.Vector3( 1.0, -1.0, 0.0)); 
+                 squareGeometry.vertices.push(new THREE.Vector3(-1.0, -1.0, 0.0)); 
+                 squareGeometry.faces.push(new THREE.Face3(0, 1, 2)); 
+                 squareGeometry.faces.push(new THREE.Face3(0, 2, 3)); 
+  
+                 
+                 
+                  
+                var squareMaterial = new THREE.MeshBasicMaterial({ 
+                     color, 
+                     side:THREE.DoubleSide 
+                 }); 
+  
+                
+                 squareMesh = new THREE.Mesh(squareGeometry, squareMaterial); 
+                 
+                  
+                                    
+                  // dikdörtgen haline getiriyoruz
+                squareMesh.scale.set(0.15, 1.0, 0.0);
+                  //yerini ayarlıyoruz
+                  squareMesh.position.set(0.0, -0.8, 0.0);
+                  
+                  
+                 scene.add(squareMesh); 
+                
+                  
+                 var triangleGeometry = new THREE.Geometry(); 
+                 triangleGeometry.vertices.push(new THREE.Vector3( 0,  0, 0)); 
+                 triangleGeometry.vertices.push(new THREE.Vector3(1, 1, 0)); 
+                 triangleGeometry.vertices.push(new THREE.Vector3( 1, 0, 0)); 
+                 triangleGeometry.faces.push(new THREE.Face3(0, 1, 2)); 
+  
+              
+  
+                 triangleGeometry.faces[0].vertexColors[0] = new THREE.Color(0.7, 0.0, 1.0); 
+                 triangleGeometry.faces[0].vertexColors[1] = new THREE.Color(1.0, 1.0, 0.0); 
+                 triangleGeometry.faces[0].vertexColors[2] = new THREE.Color(0.1, 1.0, 0.6); 
+  
+                //triangle ı olusturacak materyali olusturuyoruz color doubleside ozellikleri var
+                 var triangleMaterial = new THREE.MeshBasicMaterial({ 
+                     vertexColors:THREE.VertexColors, 
+                     side:THREE.DoubleSide 
+                 }); 
+  
+                
+                triangleMesh1 = new THREE.Mesh(triangleGeometry, triangleMaterial);
+                  triangleMesh2 = new THREE.Mesh(triangleGeometry, triangleMaterial);
+                  triangleMesh3 = new THREE.Mesh(triangleGeometry, triangleMaterial);
+                  triangleMesh4 = new THREE.Mesh(triangleGeometry, triangleMaterial);
+                  triangleMesh5 = new THREE.Mesh(triangleGeometry, triangleMaterial);
+                  
+                  
+                  
+                  
+                  
+                //program ilk acıldıgında pervane gibi gorunmeleri için baslangıcta rotate ediyoruz
+                  
+                triangleMesh1.rotation.z = 10;
+                triangleMesh2.rotation.z = 20;  
+                 triangleMesh3.rotation.z = 30;
+                  triangleMesh4.rotation.z = 40;
+                  
+                  
+                 scene.add(triangleMesh1);
+                   scene.add(triangleMesh2);
+                   scene.add(triangleMesh3);
+                   scene.add(triangleMesh4);
+                  scene.add(triangleMesh5);
+                  
+  
+       
+             } //initializescene sonu
+              
+              //klavyeden girdi almak için listener ekliyoruz
+              document.addEventListener("keydown", onDocumentKeyDown, false); 
+              
+              
+              
+              function onDocumentKeyDown(event){ 
+                 // Get the key code of the pressed key 
+                 var keyCode = event.which; 
+  
+                 //up arrow
+                 if(keyCode == 38){ 
+              
+                          rotatevalue -= 10;
+                 }
+                  //down arrow
+                  else if (keyCode ==40){
+                      rotatevalue += 10;
+                  }
+                  
+              }
+              
+              
+              
+              
+              
+              
+              
+  
+             
+          
+             function animateScene(){ 
+             
+                 
+                  triangleMesh1.rotation.z += rotatevalue ;
+                triangleMesh2.rotation.z += rotatevalue ; 
+                 triangleMesh3.rotation.z += rotatevalue ;
+                  triangleMesh4.rotation.z += rotatevalue ;
+                 triangleMesh5.rotation.z += rotatevalue ;
+                
+                 requestAnimationFrame(animateScene); 
+  
+                
+                 renderScene(); 
+             } 
+  
+        
+             function renderScene(){ 
+                 renderer.render(scene, camera); 
+             } 
+         </script> 
+     </body> 
+ </html>
